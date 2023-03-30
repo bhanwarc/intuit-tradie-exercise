@@ -1,0 +1,18 @@
+module.exports = {
+  EXPERTISE_LEVEL: {
+    ENTRY: "ENTRY",
+    MID: "INTERMEDIATE",
+    EXPERT: "EXPERT",
+  },
+  STATUS: {
+    ACTIVE: "ACTIVE",
+    INACTIVE: "INACTIVE",
+    DELETED: "DELETED",
+    CLOSED: "CLOSED",
+  },
+  JOB_TYPE: {
+    LONG_TERM: "LONG_TERM",
+    ONE_TIME: "ONE_TIME",
+    CONTRACT: "CONTRACT",
+  },
+};

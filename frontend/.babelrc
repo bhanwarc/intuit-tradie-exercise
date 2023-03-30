@@ -1,0 +1,16 @@
+{
+  "presets": ["@babel/preset-typescript"],
+  "plugins": [
+    [
+      "styled-components",
+      {
+        "ssr": true,
+        "displayName": true,
+        "preprocess": false
+      }
+    ]
+    // ["@babel/plugin-proposal-private-methods", { "loose": true }],
+    // ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    // ["@babel/plugin-proposal-private-property-in-object", { "loose": true }]
+  ]
+}

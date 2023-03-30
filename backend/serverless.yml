@@ -1,0 +1,298 @@
+org: tradie
+service: intuit-tradie-api
+
+useDotenv: true
+
+package:
+  individually: true
+  patterns:
+    - "!tests/**"
+    - "!.github/**"
+    - "!migrations/**"
+    - "!seeders/**"
+    - "!scripts/**"
+    - "!node_modules/.cache/**"
+    - "!.eslintignore"
+    - "!.eslintrc.js"
+    - "!.prettierrc.js"
+    - "!cloud-architecture.png"
+    - "!deploy.sh"
+    - "!cognito.yml"
+    - "!database.yml"
+    - "!README.md"
+
+plugins:
+  - serverless-webpack
+  # - serverless-plugin-common-excludes
+  - serverless-stack-termination-protection
+  - serverless-offline
+  - serverless-prune-plugin
+  - serverless-dotenv-plugin
+  - serverless-offline-dotenv
+  - serverless-plugin-split-stacks
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${env:REGION}
+  memorySize: 512
+  timeout: 15
+
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminUpdateUserAttributes
+            - cognito-idp:AdminGetUser
+            - cognito-idp:AdminConfirmSignUp
+            - cognito-idp:AdminSetUserPassword
+          Resource:
+            - "Fn::Join":
+                - ""
+                - - "arn:aws:cognito-idp:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":userpool/*"
+
+        - Effect: "Allow"
+          Action:
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+            - sqs:SendMessage
+          Resource:
+            Fn::GetAtt:
+              - DelayedQueue
+              - Arn
+
+custom:
+  DBStack: intuit-tradie-database-${sls:stage}
+  ClientAdminUserPoolName: intuit-tradie-client-${sls:stage}
+  TalentAdminUserPoolName: intuit-tradie-talent-${sls:stage}
+
+  clientAuthorizer:
+    type: COGNITO_USER_POOLS
+    authorizerId:
+      Ref: ClientApiGatewayAuthorizer
+
+  talentAuthorizer:
+    type: COGNITO_USER_POOLS
+    authorizerId:
+      Ref: TalentApiGatewayAuthorizer
+
+  serverlessTerminationProtection:
+    stages:
+      - production
+      - staging
+      - development
+
+  cors:
+    origin: "*"
+    headers:
+      - Content-Type
+      - X-Amz-Date
+      - Authorization
+      - X-Api-Key
+      - X-Amz-Security-Token
+      - X-Amz-User-Agent
+      - Access-Control-Allow-Origin
+      - Access-Control-Allow-Credentials
+
+  prune:
+    automatic: true
+    number: 2
+
+functions:
+  getClientProfile:
+    handler: src/handlers/index.getClientProfile
+    events:
+      - http:
+          path: /clients/{clientId}
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  updateClientProfile:
+    handler: src/handlers/index.updateClientProfile
+    events:
+      - http:
+          path: /clients/{clientId}
+          method: post
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  clientJobs:
+    handler: src/handlers/index.getClientJobs
+    events:
+      - http:
+          path: /clients/{clientId}/jobs
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+      - http:
+          path: /clients/{clientId}/jobs/{jobId}
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  JobBids:
+    handler: src/handlers/index.getJobBids
+    events:
+      - http:
+          path: /clients/{clientId}/jobs/{jobId}/bids
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  closeJob:
+    handler: src/handlers/index.closeJob
+    events:
+      - http:
+          path: /clients/{clientId}/jobs/{jobId}/close
+          method: post
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  createJob:
+    handler: src/handlers/index.createJob
+    events:
+      - http:
+          path: /clients/{clientId}/jobs/{jobId}
+          method: post
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.clientAuthorizer}
+
+  getJobs:
+    handler: src/handlers/index.getJobs
+    events:
+      - http:
+          path: /jobs
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+      - http:
+          path: /jobs/{jobId}
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+
+  getTalentProfile:
+    handler: src/handlers/index.getTalentProfile
+    events:
+      - http:
+          path: /talents/{talentId}
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+
+  updateTalentProfile:
+    handler: src/handlers/index.updateTalentProfile
+    events:
+      - http:
+          path: /talents/{talentId}
+          method: post
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+
+  talentBids:
+    handler: src/handlers/index.getTalentBids
+    events:
+      - http:
+          path: /talents/bids
+          method: get
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+
+  createProposal:
+    handler: src/handlers/index.placeBid
+    events:
+      - http:
+          path: /jobs/{jobId}/proposal
+          method: post
+          cors: ${self:custom.cors}
+          authorizer: ${self:custom.talentAuthorizer}
+
+  # Public Routes
+  welcome:
+    handler: src/handlers/index.welcome
+    events:
+      - http:
+          path: /
+          method: get
+          cors: ${self:custom.cors}
+
+  # Triggers
+  clientAdminPreSignUpTrigger:
+    handler: src/triggers/auth.preSignUpTrigger
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.ClientAdminUserPoolName}
+          trigger: PreSignUp
+          existing: true
+
+  clientAdminPostConfirmationTrigger:
+    handler: src/triggers/auth.clientPostConfirmationTrigger
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.ClientAdminUserPoolName}
+          trigger: PostConfirmation
+          existing: true
+
+  talentAdminPreSignUpTrigger:
+    handler: src/triggers/auth.preSignUpTrigger
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.TalentAdminUserPoolName}
+          trigger: PreSignUp
+          existing: true
+
+  talentAdminPostConfirmationTrigger:
+    handler: src/triggers/auth.talentPostConfirmationTrigger
+    events:
+      - cognitoUserPool:
+          pool: ${self:custom.TalentAdminUserPoolName}
+          trigger: PostConfirmation
+          existing: true
+
+  closeJobAndAnounceWinner:
+    handler: src/triggers/job.closeJobAndAnounceWinner
+    events:
+      - schedule: cron(*/5 * * * ? *)
+
+resources:
+  Resources:
+    ClientApiGatewayAuthorizer:
+      DependsOn:
+        - ApiGatewayRestApi
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: client-cognito-authorizer
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - Fn::ImportValue:
+              Fn::Sub: "ClientAdminUserPoolArn"
+
+    TalentApiGatewayAuthorizer:
+      DependsOn:
+        - ApiGatewayRestApi
+      Type: AWS::ApiGateway::Authorizer
+      Properties:
+        Name: talent-cognito-authorizer
+        IdentitySource: method.request.header.Authorization
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        Type: COGNITO_USER_POOLS
+        ProviderARNs:
+          - Fn::ImportValue:
+              Fn::Sub: "TalentAdminUserPoolArn"
+
+    DelayedQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: "DelayedQueue"

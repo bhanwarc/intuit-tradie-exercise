@@ -1,0 +1,60 @@
+config:
+  target: https://lkowrh9vf4.execute-api.ap-southeast-2.amazonaws.com/staging
+  phases:
+    - duration: 1
+      arrivalRate: 1
+    - duration: 1
+      arrivalRate: 1
+    - duration: 1
+      arrivalRate: 1
+    - duration: 1
+      arrivalRate: 1
+    - duration: 1
+      arrivalRate: 1
+  variables:
+    customertoken:
+      - "eyJraWQiOiJoYkFrOEtNWXh4RlVEMDd5Nmh3QlY2amUrbGt5ZHN1N0w2SUlvN25wR0xvPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJhMjQ0Y2ZjYi01ODgzLTRjNTQtYmUzYy05NjRiYjI5ZmE5NWUiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoZWFzdC0yLmFtYXpvbmF3cy5jb21cL2FwLXNvdXRoZWFzdC0yX0g2UzF3YldsdSIsImNvZ25pdG86dXNlcm5hbWUiOiJhMjQ0Y2ZjYi01ODgzLTRjNTQtYmUzYy05NjRiYjI5ZmE5NWUiLCJnaXZlbl9uYW1lIjoiQ2xpZW50Iiwib3JpZ2luX2p0aSI6ImZjNThiZDZiLWRkMGItNDkwNi1iMjczLTc5ZTAyMGE1Y2MzZSIsImF1ZCI6IjZlcWR1MzU0a2IzbzE4YWI0aDc5cGU0dHM0IiwiZXZlbnRfaWQiOiIyZmE3ZDQ5NS1lZTI1LTQ4YTctODY2MS0wZTMwZmExMDA3YTkiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTY3Mzg2NDAyOCwiZXhwIjoxNjczOTUwNDI4LCJpYXQiOjE2NzM4NjQwMjgsImZhbWlseV9uYW1lIjoiQ2xpZW50IiwianRpIjoiNWVhYTMwY2QtZjNmYS00MDZhLTlhMTktMGIyMDBmNDY2NmI5IiwiZW1haWwiOiJjbGllbnQtaW50dWl0QHlvcG1haWwuY29tIn0.j9WqD7zU159NHTlq9lWtoHH90Jj0NN4CPsZFRCZIfpcKs_I28N-my5hZ05yGMudp2sB2AlKQ8KguHvvgCCiEcneTjs_Gkmg54uz_fjdIt8ADyQx_jdipqSbsqxi3FaMeaX5o9N1yKpRfUY156PcU8rQuzJHDjUSUSmq2vg3qvmMQ6NCeORMyw0bD_UmWg4vTSM32V2tbsbSAphmEzD71O75oIk5xGZtyVezg6KG6EkQc2HfTTeGpUYec-944_qB-4pYLSOaHmyGU3MhuHPKwxob94LIa0iVSj-Oz2J5eVINANVm22PxQBzWAMtYYgTVyPtE-TIskmVx9WJkwZ1DyKA"
+    tradietoken:
+      - "eyJraWQiOiJRTjdPaGdHcVVORktcL0lzUHYreGZZTEduaUlkeEFqenN4VStCdGgzTzJ2dz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4MzUxYzNhZS02OWJkLTRlYTAtODM0ZC1lMWVjMjYyNDFhMDIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoZWFzdC0yLmFtYXpvbmF3cy5jb21cL2FwLXNvdXRoZWFzdC0yX3YxbkNPTm4zTCIsImNvZ25pdG86dXNlcm5hbWUiOiI4MzUxYzNhZS02OWJkLTRlYTAtODM0ZC1lMWVjMjYyNDFhMDIiLCJnaXZlbl9uYW1lIjoiVGFsZW50Iiwib3JpZ2luX2p0aSI6IjA3ZWEyNDYyLTE1ZjYtNGNlNy04ZGFjLTIzNWRmMzFiZDU0ZSIsImF1ZCI6Ijd0ZDFrY3M3c2ZiY2o3cDV2MnZ2cm50NGc4IiwiZXZlbnRfaWQiOiJjMjRkZDdlZS03NmYyLTRhYTctYjkyMy0xMDgyZWZkNWIzMTEiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTY3Mzg2NjQwNywiZXhwIjoxNjczOTUyODA3LCJpYXQiOjE2NzM4NjY0MDcsImZhbWlseV9uYW1lIjoiVGFsZW50IiwianRpIjoiYThkNjYwMTYtZTlkNy00NDI5LWI1ODMtZDQyZDFhNzBlMWQzIiwiZW1haWwiOiJ0YWxlbnQtaW50dWl0QHlvcG1haWwuY29tIn0.OOnlqeWo85IAvMKY-3ypGvH1vX9FJLY-YZ5ECAISYqyp5p4wc7FrdZa-Z-_GGPJOK7u1j-tMkz1W9M5BPWrm5j6keKWXRmVXPONS9usKBaqYP2rlRdVAox_imBoVjG8b59wMAV3aEI-bhhVgR_WQaG3YHJdXPgzWM7_D3JFIYcyFpjE9FPzKSuwFuBHZh7NkO5YFeiLDTU15EGGxfyzP_N2EEmFVbtz4fGxw7fBi3vMl8_H8mhmwqKCv2Juq49IRNBCx_BQwB_BhZSi-B4WvBdm8InaCXaB40zsZv8bfkhldSS-DxTxZGH9rcE2gUvgM2_-OT1hzFeDrXUFAiVs0RQ"
+scenarios:
+  - name: "customer profile"
+    flow:
+      - get:
+          url: "/clients/a244cfcb-5883-4c54-be3c-964bb29fa95e"
+          headers:
+            authorization: "{{ customertoken }}"
+
+  - name: "customer's projects"
+    flow:
+      - get:
+          url: "/clients/a244cfcb-5883-4c54-be3c-964bb29fa95e/jobs"
+          headers:
+            authorization: "{{ customertoken }}"
+
+  - name: "client gets project info"
+    flow:
+      - get:
+          url: "/clients/a244cfcb-5883-4c54-be3c-964bb29fa95e/jobs/d08a3d83-676a-4a9f-989b-927a953bb444"
+          headers:
+            authorization: "{{ customertoken }}"
+
+  - name: "project's bids"
+    flow:
+      - get:
+          url: "/clients/a244cfcb-5883-4c54-be3c-964bb29fa95e/jobs/d08a3d83-676a-4a9f-989b-927a953bb444/bids"
+          headers:
+            authorization: "{{ customertoken }}"
+
+  - name: "tradie profile"
+    flow:
+      - get:
+          url: "/talents/8351c3ae-69bd-4ea0-834d-e1ec26241a02"
+          headers:
+            authorization: "{{ tradietoken }}"
+
+  - name: "tradie's bids"
+    flow:
+      - get:
+          url: "/talents/bids"
+          headers:
+            authorization: "{{ tradietoken }}"

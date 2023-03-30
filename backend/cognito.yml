@@ -1,0 +1,214 @@
+org: tradie
+service: intuit-tradie-cognito
+
+useDotenv: true
+
+plugins:
+  - serverless-stack-termination-protection
+
+provider:
+  name: aws
+  region: ${env:REGION}
+
+custom:
+  # Client
+  ClientAdminUniqueName: intuit-tradie-client-${sls:stage}
+  ClientAdminUserPoolName: ${self:custom.ClientAdminUniqueName}
+  ClientAdminUserPoolClient: ${self:custom.ClientAdminUniqueName}-user-pool-client
+  ClientAdminUserPoolDomain: ${self:custom.ClientAdminUniqueName}
+  ClientAdminUserPoolClientId:
+    Ref: ClientAdminCognitoUserPoolClient
+  ClientAdminUserPoolId:
+    Ref: ClientAdminCognitoUserPool
+
+  # Talent
+  TalentAdminUniqueName: intuit-tradie-talent-${sls:stage}
+  TalentAdminUserPoolName: ${self:custom.TalentAdminUniqueName}
+  TalentAdminUserPoolClient: ${self:custom.TalentAdminUniqueName}-user-pool-client
+  TalentAdminUserPoolDomain: ${self:custom.TalentAdminUniqueName}
+  TalentAdminUserPoolClientId:
+    Ref: TalentAdminCognitoUserPoolClient
+  TalentAdminUserPoolId:
+    Ref: TalentAdminCognitoUserPool
+
+  CallbackSignIn: ${env:FE_URL}
+  CallbackSignOut: ${env:FE_URL}
+
+  serverlessTerminationProtection:
+    stages:
+      - production
+      - staging
+      - develop
+
+resources:
+  Resources:
+    # Client
+    ClientAdminCognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:custom.ClientAdminUserPoolName}
+        VerificationMessageTemplate:
+          DefaultEmailOption: CONFIRM_WITH_CODE
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: given_name
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: family_name
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+        UsernameConfiguration:
+          CaseSensitive: False
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+
+    ClientAdminCognitoUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        UserPoolId:
+          Ref: ClientAdminCognitoUserPool
+        Domain: ${self:custom.ClientAdminUserPoolDomain}
+
+    ClientAdminCognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:custom.ClientAdminUserPoolClient}
+        AccessTokenValidity: 24
+        IdTokenValidity: 24
+        RefreshTokenValidity: 48
+        UserPoolId:
+          Ref: ClientAdminCognitoUserPool
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
+          - USER_PASSWORD_AUTH
+        CallbackURLs:
+          - ${self:custom.CallbackSignIn}
+        LogoutURLs:
+          - ${self:custom.CallbackSignOut}
+        AllowedOAuthFlowsUserPoolClient: true
+        SupportedIdentityProviders: ["COGNITO"]
+        AllowedOAuthFlows: ["code", "implicit"]
+        AllowedOAuthScopes:
+          ["email", "openid", "aws.cognito.signin.user.admin", "profile"]
+
+    # Talent
+    TalentAdminCognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:custom.TalentAdminUserPoolName}
+        VerificationMessageTemplate:
+          DefaultEmailOption: CONFIRM_WITH_CODE
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: given_name
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: family_name
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+        UsernameConfiguration:
+          CaseSensitive: False
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+
+    TalentAdminCognitoUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        UserPoolId:
+          Ref: TalentAdminCognitoUserPool
+        Domain: ${self:custom.TalentAdminUserPoolDomain}
+
+    TalentAdminCognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:custom.TalentAdminUserPoolClient}
+        AccessTokenValidity: 24
+        IdTokenValidity: 24
+        RefreshTokenValidity: 48
+        UserPoolId:
+          Ref: TalentAdminCognitoUserPool
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
+          - USER_PASSWORD_AUTH
+        CallbackURLs:
+          - ${self:custom.CallbackSignIn}
+        LogoutURLs:
+          - ${self:custom.CallbackSignOut}
+        AllowedOAuthFlowsUserPoolClient: true
+        SupportedIdentityProviders: ["COGNITO"]
+        AllowedOAuthFlows: ["code", "implicit"]
+        AllowedOAuthScopes:
+          ["email", "openid", "aws.cognito.signin.user.admin", "profile"]
+
+  Outputs:
+    # Client
+    ClientAdminUserPoolId:
+      Value: ${self:custom.ClientAdminUserPoolId}
+      Export:
+        Name: ClientAdminUserPoolId
+    ClientAdminUserPoolClientId:
+      Value: ${self:custom.ClientAdminUserPoolClientId}
+      Export:
+        Name: ClientAdminUserPoolClientId
+    ClientAdminUserPoolDomain:
+      Value: ${self:custom.ClientAdminUserPoolDomain}
+      Export:
+        Name: ClientAdminUserPoolDomain
+    ClientAdminUserPoolName:
+      Value: ${self:custom.ClientAdminUserPoolName}
+      Export:
+        Name: ClientAdminUserPoolName
+    ClientUserPoolArn:
+      Export:
+        Name: ClientAdminUserPoolArn
+      Value:
+        Fn::GetAtt:
+          - "ClientAdminCognitoUserPool"
+          - "Arn"
+
+    # Talent
+    TalentAdminUserPoolId:
+      Value: ${self:custom.TalentAdminUserPoolId}
+      Export:
+        Name: TalentAdminUserPoolId
+    TalentAdminUserPoolClientId:
+      Value: ${self:custom.TalentAdminUserPoolClientId}
+      Export:
+        Name: TalentAdminUserPoolClientId
+    TalentAdminUserPoolDomain:
+      Value: ${self:custom.TalentAdminUserPoolDomain}
+      Export:
+        Name: TalentAdminUserPoolDomain
+    TalentAdminUserPoolName:
+      Value: ${self:custom.TalentAdminUserPoolName}
+      Export:
+        Name: TalentAdminUserPoolName
+    TalentUserPoolArn:
+      Export:
+        Name: TalentAdminUserPoolArn
+      Value:
+        Fn::GetAtt:
+          - "TalentAdminCognitoUserPool"
+          - "Arn"

@@ -1,0 +1,55 @@
+name: Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: ["14.x"]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Serverless Framework
+        run: |
+          yarn global add serverless@3.7.5
+          yarn global add json
+
+      - name: config AWS credentials
+        run: |
+          npx serverless config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Deploy BE
+        env:
+          BE_STAGING_ENV: ${{ secrets.BE_STAGING_ENV }}
+        run: |
+          cd backend
+          yarn
+          touch .env.staging
+          echo $BE_STAGING_ENV| tr " " "\n" >> .env.staging
+          bash deploy.sh -e staging -d api
+
+      - name: Back to root
+        run: |
+          cd ..
+
+      - name: Deploy FE
+        env:
+          FE_STAGING_ENV: ${{ secrets.FE_STAGING_ENV }}
+        run: |
+          cd frontend
+          yarn
+          touch .env
+          echo $FE_STAGING_ENV| tr " " "\n" >> .env
+          yarn build
+          serverless deploy --stage staging
